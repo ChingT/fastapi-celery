@@ -13,10 +13,10 @@ services:
     depends_on:
       - redis
 
-  worker-1:
+  worker:
     build: ./project
     command:
-      celery -A worker.celery worker --loglevel=info --logfile=logs/celery.log
+      celery -A main.celery worker --loglevel=info --logfile=logs/celery.log
     volumes:
       - ./project:/usr/src/app
     env_file:
