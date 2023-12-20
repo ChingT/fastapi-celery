@@ -8,7 +8,6 @@ from fastapi import Body, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from low_priority_tasks import generate_transaction_report
 from worker import create_task, send_notification
 
 app = FastAPI()
@@ -67,9 +66,3 @@ async def notify(device_token: str):
     logger.info("sending notification in background")
     send_notification.delay(device_token)
     return JSONResponse({"message": "Notification sent"})
-
-
-@app.get("/export/report")
-async def export():
-    generate_transaction_report.delay()
-    return JSONResponse({"message": "Generating report"})
