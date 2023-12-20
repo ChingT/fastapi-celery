@@ -13,10 +13,24 @@ services:
     depends_on:
       - redis
 
-  worker:
+  worker1:
     build: ./project
     command:
-      celery -A main.celery worker --loglevel=info --logfile=logs/celery.log
+      celery -A main.celery worker -Q high_priority --loglevel=info -n
+      higher_priority
+    volumes:
+      - ./project:/usr/src/app
+    env_file:
+      - ./project/.env
+    depends_on:
+      - web
+      - redis
+
+  worker2:
+    build: ./project
+    command:
+      celery -A main.celery worker -Q low_priority --loglevel=info -n
+      lower_priority_queue
     volumes:
       - ./project:/usr/src/app
     env_file:
@@ -38,4 +52,5 @@ services:
     depends_on:
       - web
       - redis
-      - worker
+      - worker1
+      - worker2

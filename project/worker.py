@@ -21,7 +21,7 @@ def push_error_task(device_token: str):
     logger.info(f"notification sent {device_token}")
 
 
-@shared_task(bind=True, queue="high_priority")
+@shared_task(bind=True)
 def send_notification(self, device_token: str):
     try:
         logger.info("starting background task")
@@ -31,9 +31,3 @@ def send_notification(self, device_token: str):
     except Exception as e:
         raise self.retry(exc=e, countdown=3, max_retries=3)
     logger.info(f"notification sent {device_token}")
-
-
-@shared_task
-def generate_transaction_report():
-    time.sleep(5)
-    return True

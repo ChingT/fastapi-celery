@@ -12,6 +12,10 @@ class Config:
     CELERY_RESULT_BACKEND: str = os.environ.get(
         "CELERY_RESULT_BACKEND", "redis://localhost:6379"
     )
+    CELERY_TASK_ROUTES = {
+        "worker.*": {"queue": "high_priority"},
+        "low_priority_tasks.*": {"queue": "low_priority"},
+    }
 
 
 settings = Config()

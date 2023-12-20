@@ -8,16 +8,16 @@ from fastapi import Body, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from worker import create_task, generate_transaction_report, send_notification
+from low_priority_tasks import generate_transaction_report
+from worker import create_task, send_notification
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-celery = Celery(
-    __name__, broker=settings.CELERY_BROKER_URL, backend=settings.CELERY_RESULT_BACKEND
-)
+celery = Celery()
+celery.config_from_object(settings, namespace="CELERY")
 
 
 logging.basicConfig(
