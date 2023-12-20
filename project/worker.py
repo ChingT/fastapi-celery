@@ -31,3 +31,9 @@ def send_notification(self, device_token: str):
     except Exception as e:
         raise self.retry(exc=e, countdown=3, max_retries=3)
     logger.info(f"notification sent {device_token}")
+
+
+@shared_task(name="credit_report")
+def send_credit_analysis():
+    logger.info("Generated and sent credit analysis to all active users")
+    return True

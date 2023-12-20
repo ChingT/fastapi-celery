@@ -1,5 +1,6 @@
 import os
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,6 +16,14 @@ class Config:
     CELERY_TASK_ROUTES = {
         "worker.*": {"queue": "high_priority"},
         "low_priority_tasks.*": {"queue": "low_priority"},
+    }
+
+    CELERY_BEAT_SCHEDULE: dict = {
+        "send_credit_report": {
+            "task": "credit_report",
+            "schedule": crontab(),
+            "options": {"queue": "periodic"},
+        },
     }
 
 

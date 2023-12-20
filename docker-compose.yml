@@ -29,8 +29,18 @@ services:
   worker2:
     build: ./project
     command:
-      celery -A main.celery worker -Q low_priority --loglevel=info -n
-      lower_priority_queue
+      celery -A main.celery worker -Q periodic --loglevel=info -n periodic
+    volumes:
+      - ./project:/usr/src/app
+    env_file:
+      - ./project/.env
+    depends_on:
+      - web
+      - redis
+
+  beat:
+    build: ./project
+    command: celery -A main.celery beat
     volumes:
       - ./project:/usr/src/app
     env_file:
@@ -54,3 +64,4 @@ services:
       - redis
       - worker1
       - worker2
+      - beat
