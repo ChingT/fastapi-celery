@@ -1,4 +1,7 @@
+import logging
+
 from celery.result import AsyncResult
+from celery.signals import after_setup_logger
 from fastapi import Body, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +11,25 @@ from worker import create_task
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+
+logging.basicConfig(
+    filename="logs/app.log",
+    level=logging.INFO,
+    format="%(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
+@after_setup_logger.connect
+def setup_celery_logger(logger, *args, **kwargs):
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    logger = logging.getLogger("tasks")
+    fh = logging.FileHandler("logs/tasks.log")
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
 
 
 @app.get("/")
