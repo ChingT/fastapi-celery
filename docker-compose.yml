@@ -4,7 +4,7 @@ services:
   web:
     build: ./project
     ports:
-      - 8004:8000
+      - 8000:8000
     command: uvicorn main:app --host 0.0.0.0 --reload
     volumes:
       - ./project:/usr/src/app
@@ -15,9 +15,7 @@ services:
 
   worker1:
     build: ./project
-    command:
-      celery -A main.celery worker -Q high_priority --loglevel=info -n
-      higher_priority
+    command: celery -A main.celery worker --loglevel=info
     volumes:
       - ./project:/usr/src/app
     env_file:
@@ -56,7 +54,7 @@ services:
     build: ./project
     command: celery --broker=redis://redis:6379/0 flower --port=5555
     ports:
-      - 5556:5555
+      - 5555:5555
     env_file:
       - ./project/.env
     depends_on:
