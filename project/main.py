@@ -4,7 +4,7 @@ from celery import Celery
 from celery.result import AsyncResult
 from celery.signals import after_setup_logger
 from config import settings
-from fastapi import Body, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -43,15 +43,14 @@ def home(request: Request):
     return templates.TemplateResponse("home.html", context={"request": request})
 
 
-@app.post("/tasks", status_code=201)
-def run_task(payload=Body(...)):
-    task_type = payload["type"]
-    task = create_task.delay(int(task_type))
+@app.post("/tasks/{task_type}", status_code=201)
+def run_task(task_type: int):
+    task = create_task.delay(task_type)
     return JSONResponse({"task_id": task.id})
 
 
 @app.get("/tasks/{task_id}")
-def get_status(task_id):
+def get_status(task_id: str):
     task_result = AsyncResult(task_id)
     result = {
         "task_id": task_id,

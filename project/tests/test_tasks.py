@@ -1,11 +1,10 @@
-import json
 from unittest.mock import patch
 
 from worker import create_task
 
 
 def test_home(test_app):
-    response = test_app.get("/")
+    response = test_app.get("/home")
     assert response.status_code == 200
 
 
@@ -28,7 +27,7 @@ def test_mock_task(mock_run):
 
 
 def test_task_status(test_app):
-    response = test_app.post("/tasks", data=json.dumps({"type": 1}))
+    response = test_app.post("/tasks/1")
     content = response.json()
     task_id = content["task_id"]
     assert task_id
