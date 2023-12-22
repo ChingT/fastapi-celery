@@ -1,9 +1,8 @@
 import logging
 
-from celery import Celery
 from celery.result import AsyncResult
 from celery.signals import after_setup_logger
-from config import settings
+from config import create_celery
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -11,12 +10,9 @@ from fastapi.templating import Jinja2Templates
 from worker import create_task, send_notification
 
 app = FastAPI()
+celery = create_celery()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-
-
-celery = Celery()
-celery.config_from_object(settings, namespace="CELERY")
 
 
 logging.basicConfig(
