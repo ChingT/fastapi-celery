@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  web:
+  backend:
     build: ./project
     ports:
       - 8000:8000
@@ -11,7 +11,7 @@ services:
     env_file:
       - ./project/.env
     depends_on:
-      - redis
+      - queue
 
   worker1:
     build: ./project
@@ -21,8 +21,8 @@ services:
     env_file:
       - ./project/.env
     depends_on:
-      - web
-      - redis
+      - backend
+      - queue
 
   worker2:
     build: ./project
@@ -33,8 +33,8 @@ services:
     env_file:
       - ./project/.env
     depends_on:
-      - web
-      - redis
+      - backend
+      - queue
 
   beat:
     build: ./project
@@ -44,22 +44,25 @@ services:
     env_file:
       - ./project/.env
     depends_on:
-      - web
-      - redis
+      - backend
+      - queue
 
-  redis:
-    image: redis:7
+  queue:
+    # image: redis:7
+    image: rabbitmq:3
 
   dashboard:
-    build: ./project
-    command: celery --broker=redis://redis:6379/0 flower --port=5555
+    # build: ./project
+    # command: celery --broker=redis://redis:6379/0 flower --port=5555
+    image: mher/flower:0.9.7
+    command: "--broker=amqp://guest@queue:5672//"
     ports:
       - 5555:5555
     env_file:
       - ./project/.env
     depends_on:
-      - web
-      - redis
+      - backend
+      - queue
       - worker1
       - worker2
       - beat
